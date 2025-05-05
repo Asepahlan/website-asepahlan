@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asep Ahlan - Tugas 1 Sistem Operasi</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .chart-container, .input-container {
+            margin-top: 30px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1><a href="index.html">AsepAhlan</a></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="tentang.html">Tentang Saya</a></li>
+                    <li><a href="tugas.html">Tugas Sistem Operasi</a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="assignment-detail">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="index.html">Beranda</a> &gt; 
+                    <a href="tugas.html">Tugas Sistem Operasi</a> &gt; 
+                    <span>Tugas 1</span>
+                </div>
+                
+                <h2>Tugas 1 Sistem Operasi</h2>
+                <div class="assignment-meta">
+                    <span><i class="far fa-calendar-alt"></i> Deadline: 15 Oktober 2023</span>
+                    <span><i class="fas fa-check-circle"></i> Status: Belum Dihitung</span>
+                </div>
+
+                <div class="assignment-content">
+                    <h3>Input Data</h3>
+                    <div class="input-container">
+                        <label for="tanggal">Tanggal Lahir:</label>
+                        <input type="number" id="tanggal" placeholder="Contoh: 29">
+                        <label for="bulan">Bulan Lahir:</label>
+                        <input type="number" id="bulan" placeholder="Contoh: 4">
+                        <label for="tahun">Tahun Lahir:</label>
+                        <input type="number" id="tahun" placeholder="Contoh: 2005">
+                        <label for="nim">3 Digit Terakhir NIM:</label>
+                        <input type="number" id="nim" placeholder="Contoh: 189">
+                        <button onclick="hitungDiskScheduling()">Hitung</button>
+                    </div>
+
+                    <div id="hasilPerhitungan"></div>
+                    <div class="chart-container">
+                        <canvas id="trackChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section about">
+                    <h3>Tentang Website</h3>
+                    <p>Website pribadi ini dibuat untuk memenuhi tugas mata kuliah Sistem Operasi di Universitas Perjuangan.</p>
+                </div>
+                <div class="footer-section links">
+                    <h3>Tautan Cepat</h3>
+                    <ul>
+                        <li><a href="index.html">Beranda</a></li>
+                        <li><a href="tentang.html">Tentang Saya</a></li>
+                        <li><a href="tugas.html">Tugas Sistem Operasi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section contact">
+                    <h3>Kontak</h3>
+                    <p><i class="fas fa-envelope"></i> asepahlan@example.com</p>
+                    <p><i class="fas fa-university"></i> Universitas Perjuangan</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Asep Muhammad Ahlan Selan. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function hitungDiskScheduling() {
+            const tanggal = parseInt(document.getElementById('tanggal').value);
+            const bulan = parseInt(document.getElementById('bulan').value);
+            const tahun = document.getElementById('tahun').value;
+            const nim = parseInt(document.getElementById('nim').value);
+            const x1 = tanggal * 10;
+            const x2 = bulan * 100;
+            const x3 = parseInt(tahun);
+            const x4 = nim;
+
+            let requests = [1500, 1100,1750, 1900, x1, 850, 60, 1300, 1400, 600, x2, 1500, 1000, 30, 1900, x3, 700, 1300, 55, 2025, x4, 700, 1500, 200];
+            const head = 1234;
+            const total_tracks = 2050;
+
+            function fcfs(head, requests) {
+                let total = 0, pos = head;
+                requests.forEach(r => { total += Math.abs(pos - r); pos = r; });
+                return total;
+            }
+            function sstf(head, requests) {
+                let total = 0, pos = head, reqs = [...requests];
+                while (reqs.length > 0) {
+                    let closest = reqs.reduce((a, b) => Math.abs(a - pos) < Math.abs(b - pos) ? a : b);
+                    total += Math.abs(pos - closest);
+                    pos = closest;
+                    reqs.splice(reqs.indexOf(closest), 1);
+                }
+                return total;
+            }
+            function scan(head, requests) {
+                let total = 0, pos = head;
+                let left = requests.filter(r => r < head).sort((a,b) => b - a);
+                let right = requests.filter(r => r >= head).sort((a,b) => a - b);
+                right.forEach(r => { total += Math.abs(pos - r); pos = r; });
+                if (left.length > 0) {
+                    total += Math.abs(pos - left[0]);
+                    pos = left[0];
+                    left.forEach(r => { if (r !== pos) { total += Math.abs(pos - r); pos = r; }});
+                }
+                return total;
+            }
+            function cscan(head, requests) {
+                let total = 0, pos = head;
+                let sorted = requests.slice().sort((a,b) => a - b);
+                let right = sorted.filter(r => r >= head);
+                let left = sorted.filter(r => r < head);
+                right.forEach(r => { total += Math.abs(pos - r); pos = r; });
+                if (left.length > 0) {
+                    total += Math.abs(pos - (total_tracks - 1));
+                    total += total_tracks - 1;
+                    pos = 0;
+                    left.forEach(r => { total += Math.abs(pos - r); pos = r; });
+                }
+                return total;
+            }
+            function look(head, requests) {
+                let total = 0, pos = head;
+                let left = requests.filter(r => r < head).sort((a,b) => b - a);
+                let right = requests.filter(r => r >= head).sort((a,b) => a - b);
+                right.forEach(r => { total += Math.abs(pos - r); pos = r; });
+                left.forEach(r => { total += Math.abs(pos - r); pos = r; });
+                return total;
+            }
+            function clook(head, requests) {
+                let total = 0, pos = head;
+                let sorted = requests.slice().sort((a,b) => a - b);
+                let right = sorted.filter(r => r >= head);
+                let left = sorted.filter(r => r < head);
+                right.forEach(r => { total += Math.abs(pos - r); pos = r; });
+                if (left.length > 0) {
+                    total += Math.abs(pos - left[0]);
+                    pos = left[0];
+                    left.forEach(r => { if (r !== pos) { total += Math.abs(pos - r); pos = r; }});
+                }
+                return total;
+            }
+
+            const hasil = {
+                "FCFS": fcfs(head, requests),
+                "SSTF": sstf(head, requests),
+                "SCAN": scan(head, requests),
+                "C-SCAN": cscan(head, requests),
+                "LOOK": look(head, requests),
+                "C-LOOK": clook(head, requests)
+            };
+
+            document.getElementById('hasilPerhitungan').innerHTML = `
+                <h3>Hasil Perhitungan</h3>
+                <ul>
+                    ${Object.entries(hasil).map(([k, v]) => `<li><strong>${k}:</strong> ${v} track</li>`).join('')}
+                </ul>
+            `;
+
+            const ctx = document.getElementById('trackChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(hasil),
+                    datasets: [{
+                        label: 'Total Lintasan (Track)',
+                        data: Object.values(hasil),
+                        backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff', '#ff9f40']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Perbandingan Total Lintasan Algoritma Disk Scheduling' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
